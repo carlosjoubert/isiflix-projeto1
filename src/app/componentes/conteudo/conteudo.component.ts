@@ -16,14 +16,13 @@ export class ConteudoComponent implements OnInit {
   public constructor(){
     this.mensagem = "Olá, Mundo!";
     this.valor=0;
-    this.link_foto= "https://blog.unoeste.br/wp-content/uploads/2022/08/curso-agronomia.jpg"
+    this.link_foto= "../../../../public/agronomia_logotipo.png"
   }
   ngOnInit(): void {
   }
 
   public mudarValor(){
     this.valor++;
-    this.link_foto="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgMgTSZGZUKwX1WWh83Kv79FhvDw5wQybFqw&s"
   }
 
 }
