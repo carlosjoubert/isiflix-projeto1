@@ -1,1 +1,17 @@
+<div id="loader" *ngIf="loading">
+    <span id="spinner"></span>
+</div>
+
 <p>componente2 works!</p>
+
+<button (click)="enviarDados()" >Enviar Dados</button>
+
+
+<hr>
+
+<h3>Posts recuperados</h3>
+
+<div *ngFor="let ITEM of lista">
+    <p>{{ITEM.id}} - ({{ITEM.userId}}) - {{ITEM.title}}</p>
+
+</div>

@@ -1,6 +1,15 @@
 <div id="bg">
+    Login:
+    <input type="text"  id="meuTxt" [(ngModel)]="textoForm">
+    <br>
+    Senha:
+    <input type="password" id="minhaSenha" [(ngModel)]="senha"><br>
+    <input type="checkbox"[(ngModel)]="clicado" >Cliqui aqui <br>
+    <button (click)="enviarDados()">Enviar dados</button>
+
+
     <h1>Conteúdo. Mensagem ={{mensagem}} - {{valor}}</h1>
     <button (click)="mudarValor()">Mudar Valor</button>
-    <img src="../../../../public/agronomia_logotipo.png" alt="foto">
+    <img src="assets/agronomia.png" alt="foto">
     
 </div>
