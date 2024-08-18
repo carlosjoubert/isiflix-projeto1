@@ -1,4 +1,4 @@
-# Fundamentos de Angular - ISIFLIX
+# Fundamentos de Angular
 
 O Angular é um framework desenvi=olvido para fazer Single Page Application (SPA).
 As SPA são fragmentadas em seções **(componentes)**.
