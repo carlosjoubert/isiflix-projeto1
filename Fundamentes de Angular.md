@@ -44,8 +44,6 @@ são responsáveis pela renderização da página principal.
 > A partir da versão 18 do Angular não existe mais o arquivo `app.module.ts` e `app-routing.module.ts`\
 > Os componetes, bem como as rotas, devem ser importados/configurados diretamente para o arquivo `.ts` de cada componente.
 
-
-
 ### Iniciar uma aplicação Angular
 
 > [!TIP]
@@ -61,7 +59,7 @@ são responsáveis pela renderização da página principal.
 O Angular cria componentes em pastas dentro da pasta `App`. Para melhor organização pode fazer uma subpasta `Componentes`.
 
 > [!TIP]
-> `ng ng generate(g) component(c) componentes/cabecalho` ou\
+> `ng generate(g) component(c) componentes/cabecalho` ou\
 > `ng g c componentes/cabecalho`
 
 * **componetes** = subpasta.
@@ -75,7 +73,7 @@ O Angular cria componentes em pastas dentro da pasta `App`. Para melhor organiza
 > * `cabecalho.component.spec.ts`
 > * `cabecalho.component.ts`
 
-No ``app.component.html` referenciar os componentes que deseja redenrizar, através das respectivas TAGs.
+No `app.component.html` referenciar os componentes que deseja redenrizar, através das respectivas TAGs.
 
 ```html
 <app-cabecalho></app-cabecalho>
@@ -84,7 +82,7 @@ No ``app.component.html` referenciar os componentes que deseja redenrizar, atrav
 ```
 
 ```typescript
-Arquivo: **`app.routes.ts`**
+// Arquivo: app.routes.ts
 
 import { Routes } from '@angular/router';
 import { ConteudoComponent } from './componentes/conteudo/conteudo.component';
@@ -107,7 +105,7 @@ export const routes: Routes = [
 Em `app.routes.ts`, na `const routes`, criar objetos com 2 atributos:
 
 * **Path:** indica a rota do endereço URL.
-* **Component:** especifica o compoente que será renderizado.
+* **Component:** especifica o componente que será renderizado.
 
 ```typescript
 export const routes: Routes = [
@@ -148,6 +146,7 @@ import { RouterLink } from '@angular/router';
 export class CabecalhoComponent{
 }
 ```
+
 No `app.component.html` trocar o componente que se quer renderizar por
 
 * `<router-outlet></router-outlet>`
@@ -204,7 +203,7 @@ export class ConteudoComponent implements OnInit {
 
 ### Interpolação
 
-Com a interpolção comseguimos renderizar uma variávl presente no `Typescript` no `HTML`. Permite mostrar uma variável no HTML.
+Com a interpolação conseguimos renderizar uma variável presente no `Typescript` no `HTML`. Permite mostrar uma variável no HTML.
 
 * Sintaxe `{{nome da variável}}`
 
@@ -216,14 +215,15 @@ Com a interpolção comseguimos renderizar uma variávl presente no `Typescript`
 
 Event binding é a associação de eventos. Usamos este recurso para vincular um código da aplicação a um certo evento disparado pelo navegador.
 
-* Sintaxe: `(tido do evento)= "método chamado"`.
+* Sintaxe: `(tipo do evento)= "método chamado"`.
 
 ```typescript
 <button (click)="incrementa()" >Mudar valor</button>
 ```
+
 > [!IMPORTANT]
 > O operador `()` indica que há uma comunicação do  HTML para o Typescript.\
-> O que for indicado no evento do angular, ele vai procurar no Typescript se existes a declaração conrrespondente.
+> O que for indicado no evento do angular, ele vai procurar no Typescript se existe a declaração conrrespondente.
 
 ### Property Binding
 
@@ -252,7 +252,7 @@ export class ConteudoComponent implements OnInit {
 
 ## Formulários
 
-* importar o `FormsModule` para o arquivo `.ts` do componente.
+* Importar o `FormsModule` para o arquivo `.ts` do componente.
 
 ```typescript
 import { FormsModule } from '@angular/forms';
@@ -269,7 +269,43 @@ import { FormsModule } from '@angular/forms';
 * Sintaxe: `[(ngModel)]="nome da variável"`.
 
 ```html
+//Arquivo: conteudo.compoment.html
+
+<input type="text"  id="meuTxt" [(ngModel)]="textoForm">
 <input type="password" id="minhaSenha" [(ngModel)]="senha"><br>
+<input type="checkbox"[(ngModel)]="clicado" >Cliqui aqui <br>
+<button (click)="enviarDados()">Enviar dados</button>
+```
+
+> [!CAUTION]
+> Não utilizar a TAG `form`, pois a mesma renderizar a página sempre que o botâo `submit` é acionado.
+
+* Todo campo do formulário precisa estar associada a uma variável dentro do componente.
+
+```typescript
+//Arquivo: conteudo.component.ts
+export class ConteudoComponent implements OnInit {
+  //ATRIBUTOS
+  public textoForm: string;
+  public senha: string;
+  public clicado: boolean;
+  //CONSTRUTOR
+  public constructor(){
+    this.textoForm="";
+    this.senha="";
+    this.clicado=false;
+  }
+  //MÉTODOS
+  public enviarDados(){
+    console.log(this.textoForm + "/" + this.senha + "/" + this.clicado);
+  }
+}
+```
+
+O ngModel vai pegar o conteúdo do campo. O operador `[()]` vai fazer o binding (ligação) do campo `html` com a variável do `.ts`.
+
+```html
+<input type="password" id="minhaSenha" [(ngModel)]="senha">
 ```
 
 ## Typescript
@@ -278,6 +314,115 @@ Para instalar o Typescript utilizar o comando:
 
 * `npm install typescript`
 
-## Rotas (parte 1)
+## Rotas
+
+### Tipos de rotas
+
+* Rotas acionadas a partir de algum evento (via código).
+* Rotas parametrizáveis. Montar a URL com o componente de rota sendo parametrizado a partir do código.
+
+No `app.routes.ts` o componente dever ser informado com um parâmentro (`:nome do parâmetro`).
+
+```typescript
+import { RotacustomComponent } from './componentes/rotacustom/rotacustom.component';
+
+export const routes: Routes = [
+    {path: 'custom/:id', component: RotacustomComponent}
+];
+```
+
+#### ActivatedRoute
+
+No arquivo `.ts` do componente é necessário injetar o componente **`ActivatedRoute`**.
+
+* `ActivatedRoute` pega a rota que está ativa no momento.
+
+```typescript
+//Arquivo rotacustom.component.ts
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+
+@Component({
+  selector: 'app-rotacustom',
+  standalone: true,
+  imports: [],
+  templateUrl: './rotacustom.component.html',
+  styleUrl: './rotacustom.component.css'
+})
+export class RotacustomComponent implements OnInit {
+  public idREcebido: string = "";
+    
+  //CONSTRUTOR com o ActivatedRoute o Router injetado.
+  public constructor(private activatedRoute: ActivatedRoute, private router: Router) {
+  }
+  public ngOnInit(): void {
+    this.idREcebido = this.activatedRoute.snapshot.params['id'];
+    console.log("Ide recebido na rota = " + this.idREcebido)
+  }
+  public navegar(): void {
+    this.router.navigate(['/'])
+  }
+}
+```
+
+* No `ngOnInit()` do componente o `this.activatedRoute.snapshot.params['id']` captura o estado atual da rota, capturando o parâmetro a partir do nome (`id`).
+
+* Atribuir a uma variável. `this.idREcebido` = `this.activatedRoute.snapshot.params['id'];`
+
+#### Router
+
+* O **`Router`** permite fazer navegações. Deve ser injetado no arquivo `.ts` igual ao `ActivatedRoute`.
+
+O componente navigate dá um vetor de comandos para fazer rotas.
+
+> [!NOTE]
+> O `router.navigate([''])` funciona exatamento como o `routerLink`, porém o routerLink é um atributo da TAG (**`a`**) e o objeto Router (injetado no componente typescript) permiter fazer rotas via código.
+
+* Sintaxe: `.navigate(['rota'])`
+
+```typescript
+public navegar(): void {
+    this.router.navigate(['/'])
+  }
+```
 
 
+
+> [!TIP]
+>
+> * O `Router` permite navegar
+>
+> * O `ActivatedRoute` permite capturar o que está ativo na rota.
+
+### Parâmentros da URL
+
+* São os parâmetros que vem após a `?` na URL.
+
+```typescript
+public constructor(private activetedRoute: ActivatedRoute){
+    let p1: string;
+    let p2: string;
+    
+    p1= this.activetedRoute.snapshot.queryParams['p1'];
+    p2 = this.activetedRoute.snapshot.queryParams['p2'];
+
+    console.log("p1 = " + p1);
+    console.log("p2 = " + p2);
+
+  }
+```
+
+* O `queryParams['nome do parâmentro']` captura o paramentro da URL.
+
+```html
+ <a routerLink='/link1'[queryParams]="{p1:'abc', p2: 'xuas'}">Link1</a>
+```
+
+* `"{p1:'abc', p2: 'xuas'}"` é um objeto **JSON** composto de `chave:valor`, separados por vígula.
+
+URL: http://localhost:4200/link1?p1=abc&p2=xuas
+
+> [!IMPORTANT]
+> O **`RouterLink`** deve ser importado para o componente para que o `[queryParams]` funcione.
+
+## Consumo de API
