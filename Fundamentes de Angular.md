@@ -426,3 +426,201 @@ URL: http://localhost:4200/link1?p1=abc&p2=xuas
 > O **`RouterLink`** deve ser importado para o componente para que o `[queryParams]` funcione.
 
 ## Consumo de API
+
+Em `app.config.ts` importar **`provideHttpClient`**.
+
+```typescript
+import { provideHttpClient } from '@angular/common/http';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideHttpClient()]
+};
+```
+
+* Levar em considferação a estrutura do JSON.
+![alt text](image.png)
+
+* Para fazer consumo de API, precisamos criar um tipo de dado compatível com a estrutura do JSON.
+
+* Criar um pasta para por os **Models** do JSON.
+* Criar um arquivo (`Post.ts`) para definir a estrutura.
+
+```typescript
+export class Post {
+    public userId: number;
+    public id: number;
+    public title: string;
+    public body: string;
+    
+    public constructor(){
+        this.userId=0;
+        this.id=0;
+        this.title="";
+        this.body="";
+    }
+}
+```
+
+> [!NOTE]
+> Em vez do construtor, pode ser declarado a variável já inicializada.\
+> Ex: **`public userId: number = 0`**;
+
+* Os arquivos `Typescript` terão utilidade exclusivamente para fazer a comunicação entre o protocolo da **API** e o **Front-end**.
+
+### Criar um serviço que consome o componente HTTP
+
+* Criar o serviço:\
+`ng g service servicos/post`
+
+* Será criado um arquivo **`post.service.ts`** na pasta servicos.
+
+* Todo método de um serviço que utiliza o componente `HttpClient` retorna um objeto do tipo **`Observable`**.
+
+```typescript
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Post } from '../Model/Post';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PostService {
+
+  constructor(private http:HttpClient) { }
+
+  //MÉTODO DE CONSUMO DA API
+  //Método GET
+  public consumirPosts(): Observable<Post[]>{
+    return this.http.get<Post[]>("https://jsonplaceholder.typicode.com/posts");
+  }
+  
+  //Método SET
+  public adicionarPost(postagem:Post):Observable<Post>{
+    return this.http.post<Post>("https://jsonplaceholder.typicode.com/posts", postagem)
+  }
+}
+```
+
+> [!IMPORTANT]
+> `HttpClient` foi injetado no construtor,\
+> `Observable` foi injetado no método GET,\
+> `Post` foi injetado no método SET.
+
+* O **`consumirPosts()`** retorna u mobjeto do tipo `Observable<Post[]>` (de uma lista de Post).
+
+### Implementar o serviço em um componete
+
+* Implementar o `OnInit` no component.
+* Injetar no construtor o `PostService`.
+* O `ngOnInit()` irá consumir a API.
+* Fazer a inscrição (`this.service.consumirPosts().subscribe({...`) para poder saber o que está acontecendo com a mudança de estado do **`Observable`**.\
+O `.subscribe` dá um vertor (um objeto JSON) que tem 2 atrubutos:\
+ **`next`**: retorna o código correspondente ao sucesso da aplicação\
+ **`error`**: retorna o código correspondente a uma tratativa errada. 
+
+
+> [!NOTE]
+> `next` e `error` são implementando por **arrow function**.
+
+```typescript
+// Arquivo: componente2.component.ts
+import { Component, OnInit } from '@angular/core';
+import { PostService } from '../../servicos/post.service';
+import { Post } from '../../Model/Post';
+import { NgForOf, NgIf } from '@angular/common';
+
+@Component({
+  selector: 'app-componente2',
+  standalone: true,
+  imports: [NgForOf, NgIf],
+  templateUrl: './componente2.component.html',
+  styleUrl: './componente2.component.css'
+})
+export class Componente2Component implements OnInit {
+  
+  public lista: Post[];
+  public loading: boolean;
+
+  public constructor(private service: PostService){
+    this.lista = [];
+    this.loading = false;
+  }
+
+  public ngOnInit(): void {
+    this.loading = true;
+
+    this.service.consumirPosts().subscribe({
+      next: (res: Post[])=>{
+        console.log("Sucesso!");
+        this.lista = res;
+        this.loading=false;
+      },
+      error: (err: any)=>{
+        console.log("ERROR do programa!");
+        console.log(err);
+        this.loading=false;
+      }
+    });
+  }
+
+  public enviarDados(): void{
+    let postagem: Post = new Post();
+    postagem.body="Teste do Carlos dasd aserd sd";
+    postagem.title="Teste Carlos";
+    postagem.userId=1;
+
+    this.service.adicionarPost(postagem).subscribe({
+      next: (res: Post)=>{
+        console.log("Sucesso!");
+        console.log(res);
+      },
+      error: (err: any)=>{
+        console.log("ERROR ao adicionar postagem!");
+        console.log(err);
+      }
+    });
+  }
+}
+```
+
+### Enviar dados para API
+
+* `public adicionarPost()` do arquivo `Post.service.ts`
+* O método possui 2 parâmetros:\
+A URL da API\
+O corpo da mensagem que é passado via parâmetro.
+
+```typescript
+ public adicionarPost(postagem:Post):Observable<Post>{
+    return this.http.post<Post>("https://jsonplaceholder.typicode.com/posts", postagem)
+  }
+```
+
+* Retorna um objeto do tipo `Post` (do model).
+* No componente que será responsável pelo envio (`enviarDados()`) passar as informações.
+
+```typescript
+public enviarDados(): void{
+    let postagem: Post = new Post();
+    postagem.body="Teste do Carlos dasd aserd sd";
+    postagem.title="Teste Carlos";
+    postagem.userId=1;
+
+    this.service.adicionarPost(postagem).subscribe({
+      next: (res: Post)=>{
+        console.log("Sucesso!");
+        console.log(res);
+      },
+      error: (err: any)=>{
+        console.log("ERROR ao adicionar postagem!");
+        console.log(err);
+      }
+    });
+
+  ```
+
+## Diretrizes NgIF e NgFOr
+
+
+
